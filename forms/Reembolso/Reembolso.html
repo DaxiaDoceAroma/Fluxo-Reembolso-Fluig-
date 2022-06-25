@@ -1,0 +1,467 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <script src="/portal/resources/js/jquery/jquery.js"></script>
+    <script src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+    <script src="/portal/resources/js/mustache/mustache-min.js"></script>
+    <script src="/style-guide/js/fluig-style-guide.min.js"></script>
+    <script src="/webdesk/vcXMLRPC.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/jquery.mask.min.js"></script>
+    <script src="js/despesas.js"></script>
+    <script src="js/pix.js"></script>
+    <script src="js/aprovacao.js"></script>
+    <script src="js/zoomModal.js"></script>
+    <script src="js/zoom.js"></script>
+    <script src="js/main.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body onload="main()">
+    <div class="fluig-style-guide">
+      <form name="form" role="form">
+        <input type="hidden" name="solicitacao" />
+        <input type="hidden" name="status" />
+
+        <input type="hidden" name="matricGestor" id="matricGestor" />
+        <input type="hidden" name="matricSolicitante" id="matricSolicitante" />
+        <input type="hidden" name="resultadoAprovacao" id="resultadoAprovacao" />
+
+        <div id="aviso"></div>
+
+        <div class="panel panel-info" id="painelGestor">
+          <div class="panel-heading" style="background-color: 01426a; color: #ffffff">
+            <h4 class="panel-title">
+              <i class="fluigicon fluigicon-user-favorite"></i>
+              <span class="fs-font-bold">Gestor</span>
+            </h4>
+          </div>
+          <div class="panel-body" style="background-color: rgb(217, 224, 227)">
+            <div class="row" id="divBtnsAprovacaoGestor">
+              <div class="col-md-4 col-xs-4">
+                <button class="btn btn-success btn-block btn-lg fs-font-bold" id="aprovar" btnAprovacao>Aprovar Despesas</button>
+              </div>
+
+              <div class="col-md-4 col-xs-4">
+                <button class="btn btn-warning btn-block btn-lg fs-font-bold" id="correcao" btnAprovacao>Solicitar Correção</button>
+              </div>
+
+              <div class="col-md-4 col-xs-4">
+                <button class="btn btn-danger btn-block btn-lg fs-font-bold" id="reprovar" btnAprovacao>Reprovar Despesas</button>
+              </div>
+            </div>
+
+            <div class="row fs-sm-margin-top">
+              <div class="col-md-6 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="observacoesGestor">Observações/Justificativas</label>
+                  <textarea id="observacoesGestor" name="observacoesGestor" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-info" id="painelSolicitante">
+          <div class="panel-heading" style="background-color: 01426a; color: #ffffff">
+            <h4 class="panel-title">
+              <i class="fluigicon fluigicon-user-edit"></i>
+              <span class="fs-font-bold">Informações Gerais</span>
+            </h4>
+          </div>
+          <div class="panel-body" style="background-color: rgb(217, 224, 227)">
+            <div class="row">
+              <div class="col-md-3 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="emailSolic">Email</label>
+                  <input type="text" name="emailSolic" id="emailSolic" class="form-control" readonly />
+                </div>
+              </div>
+              <div class="col-md-5 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="solicitante">Solicitante</label>
+                  <input type="text" name="solicitante" id="solicitante" class="form-control" readonly />
+                </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="dataViagem">Data da Viagem</label>
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <i class="fluigicon fluigicon-calendar"></i>
+                    </span>
+                    <input type="text" name="dataViagem" id="dataViagem" class="form-control" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="dataRetorno">Data de Retorno</label>
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <i class="fluigicon fluigicon-calendar"></i>
+                    </span>
+                    <input type="text" name="dataRetorno" id="dataRetorno" class="form-control" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="finalidadeVisita">Finalidade da Visita</label>
+                  <textarea id="finalidadeVisita" name="finalidadeVisita" class="form-control" rows="1"></textarea>
+                </div>
+              </div>
+              <div class="col-md-6 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="roteiro">Roteiro</label>
+                  <textarea id="roteiro" name="roteiro" class="form-control" rows="1"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="page-header">
+              <h4>
+                <i class="fluigicon fluigicon-user-cost"></i>
+                <span class="fs-font-bold">Dados Bancários</span>
+              </h4>
+            </div>
+            <div class="row">
+              <div class="col-md-4 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="banco">Banco</label>
+                  <div class="input-group">
+                    <input type="text" name="banco" id="banco" class="form-control" readonly />
+                    <div class="input-group-addon group-zoom no-view zoom-click fs-cursor-pointer" id="btnClear_banco">
+                      <span class="fluigicon fluigicon-trash"></span>
+                    </div>
+                    <div class="input-group-addon group-zoom no-view zoom-click fs-cursor-pointer" id="btnSearch_banco">
+                      <span class="fluigicon fluigicon-zoom-in"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="tipoConta">Tipo da Conta</label>
+                  <select class="form-control" name="tipoConta" id="tipoConta">
+                    <option value="corrente">Corrente</option>
+                    <option value="poupanca">Poupança</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="agencia">Agência</label>
+                  <input type="text" name="agencia" id="agencia" class="form-control number" />
+                </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="conta">Conta</label>
+                  <input type="text" name="conta" id="conta" class="form-control number" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-2 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="tipoChavePIX">Tipo Chave PIX</label>
+                  <select class="form-control" name="tipoChavePIX" id="tipoChavePIX" onchange="alterarTipoChavePIX(event)">
+                    <option value="">Sem PIX</option>
+                    <option value="cpf_cnpj">CPF/CNPJ</option>
+                    <option value="telefone">Telefone</option>
+                    <option value="email">E-mail</option>
+                    <option value="aleatoria">Aleatória</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4 col-xs-12" id="divChavePIX">
+                <div class="form-group">
+                  <label class="control-label" for="chavePIX">Chave PIX</label>
+                  <span class="required text-danger" data-toggle="tooltip" data-placement="top" title="Obrigatório"><strong>*</strong></span>
+                  <input type="text" name="chavePIX" id="chavePIX" class="form-control" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-info" id="painelMeioTransporte">
+          <div class="panel-heading" style="background-color: 01426a; color: #ffffff">
+            <h4 class="panel-title">
+              <i class="flaticon flaticon-directions-transit"></i>
+              <span class="fs-font-bold">Meio de Transporte / Locomoção</span>
+            </h4>
+          </div>
+
+          <div class="panel-body" style="background-color: rgb(217, 224, 227)">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="veiculoProprio" id="veiculoProprio" />
+                      <label class="control-label fs-font-bold" for="veiculoProprio">Veículo Próprio</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="taxiUber" id="taxiUber" />
+                      <label class="control-label fs-font-bold" for="taxiUber">Táxi / Uber</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="metro" id="metro" />
+                      <label class="control-label fs-font-bold" for="metro">Metrô</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="veiculoEmpresa" id="veiculoEmpresa" />
+                      <label class="control-label fs-font-bold" for="veiculoEmpresa">Veículo da Empresa</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="onibus" id="onibus" />
+                      <label class="control-label fs-font-bold" for="onibus">Ônibus</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="aviao" id="aviao" />
+                      <label class="control-label fs-font-bold" for="aviao">Avião</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="veiculoAlugado" id="veiculoAlugado" />
+                      <label class="control-label fs-font-bold" for="veiculoAlugado">Veículo Alugado</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-xs-12">
+                  <div class="form-group">
+                    <div class="custom-checkbox custom-checkbox-success">
+                      <input type="checkbox" name="trem" id="trem" />
+                      <label class="control-label fs-font-bold" for="trem">Trem</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label" for="distanciaPercorrida">Distância Percorrida</label>
+
+                  <div class="input-group">
+                    <input type="text" name="distanciaPercorrida" id="distanciaPercorrida" class="form-control number" />
+                    <span class="input-group-addon">KM</span>
+                  </div>
+
+                  <div class="has-error">
+                    <span class="help-block">Informar a quilometragem somente quando utilizado veículo próprio, DA ou Alugado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-info" id="painelDespesas">
+          <div class="panel-heading" style="background-color: 01426a; color: #ffffff">
+            <h4 class="panel-title">
+              <i class="fluigicon fluigicon-money"></i>
+              <span class="fs-font-bold">Despesas</span>
+            </h4>
+          </div>
+
+          <div class="panel-body" style="background-color: rgb(217, 224, 227)">
+            <div class="row fs-sm-margin-bottom" id="divAdicionarDespesas">
+              <div class="col-md-2 col-xs-12 fs-sm-margin-left">
+                <span class="btn btn-primary fs-font-bold" id="btnAdicionarDespesas">
+                  <i class="fluigicon fluigicon-plus-sign"></i>
+                  <span>Adicionar Despesa</span>
+                </span>
+              </div>
+            </div>
+
+            <table class="table table-bordered" tablename="despesas" noaddbutton="true" nodeletebutton="true">
+              <thead>
+                <tr style="display: none">
+                  <th>#</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background-color: transparent">
+                  <td>
+                    <div class="row">
+                      <div class="col-md-1 col-xs-12">
+                        <div class="form-group">
+                          <label class="control-label" for="codigo">Código</label>
+                          <input type="text" name="codigo" id="codigo" class="form-control" codigo readonly />
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 col-xs-12">
+                        <div class="form-group">
+                          <label class="control-label">Tipo da Despesa</label>
+                          <span class="required text-danger" data-toggle="tooltip" data-placement="top" title="Obrigatório"><strong>*</strong></span>
+                          <select class="form-control" name="tipoDespesa" id="tipoDespesa" tipoDespesa>
+                            <option value="">Selecione</option>
+                            <option value="combustivel">Combustível</option>
+                            <option value="taxi">Táxi</option>
+                            <option value="alugelCarro">Aluguel de Carro</option>
+                            <option value="passagemOnibus">Passagem de Ônibus</option>
+                            <option value="passagemMetro">Passagem de Metrô</option>
+                            <option value="passagemTrem">Passagem de Trem</option>
+                            <option value="passagemAereaTaxa">Passagem Aérea c/ taxas</option>
+                            <option value="pegadagio">Pedágio</option>
+                            <option value="estacionamento">Estacionamento</option>
+                            <option value="hospedagem">Hospedagem</option>
+                            <option value="lavanderia">Lavanderia</option>
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="bebida">Bebidas</option>
+                            <option value="outras">Outras Despesas</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 col-xs-12">
+                        <div class="form-group">
+                          <label class="control-label">Dinheiro</label>
+                          <div class="input-group">
+                            <span class="input-group-addon">R$</span>
+                            <input
+                              type="text"
+                              name="valorDinheiro"
+                              id="valorDinheiro"
+                              valorDinheiro
+                              class="form-control number"
+                              onchange="atualizarSomaDespesas()"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 col-xs-12">
+                        <div class="form-group">
+                          <label class="control-label">Cartão corporativo</label>
+                          <div class="input-group">
+                            <span class="input-group-addon">R$</span>
+                            <input
+                              type="text"
+                              name="valorCartao"
+                              id="valorCartao"
+                              valorCartao
+                              class="form-control number"
+                              onchange="atualizarSomaDespesas()"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-3 col-xs-12">
+                        <div class="form-group">
+                          <label class="control-label">Observações</label>
+                          <textarea rows="1" id="observacao" observacao name="observacao" class="form-control"></textarea>
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 col-xs-12 fs-lg-margin-top actionsDespesas">
+                        <div class="btn-group pull-right">
+                          <button class="btn btn-default" onclick="adicionarAnexo(this)">
+                            <i class="fluigicon fluigicon-file-upload"></i>
+                          </button>
+                          <button class="btn btn-danger" onclick="removerDespesa(this)">
+                            <i class="fluigicon fluigicon-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="col-md-6 col-xs-12 col-md-offset-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 col-xs-6">
+                      <div class="form-group">
+                        <label class="control-label" for="valorTotalDinheiro">Total dinheiro</label>
+                        <div class="input-group">
+                          <span class="input-group-addon">R$</span>
+                          <input type="text" name="valorTotalDinheiro" id="valorTotalDinheiro" class="form-control number" readonly />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-xs-6">
+                      <div class="form-group">
+                        <label class="control-label" for="valorTotaCartaoCorp">Total cartão corporativo</label>
+                        <div class="input-group">
+                          <span class="input-group-addon">R$</span>
+                          <input type="text" name="valorTotaCartaoCorp" id="valorTotaCartaoCorp" class="form-control number" readonly />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 col-xs-6">
+                      <div class="form-group">
+                        <label class="control-label" for="valorAntecipado">Valor Antecipado</label>
+                        <div class="input-group">
+                          <span class="input-group-addon">R$</span>
+                          <input
+                            type="text"
+                            name="valorAntecipado"
+                            id="valorAntecipado"
+                            class="form-control number"
+                            onchange="atualizarSomaDespesas()"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 col-xs-6">
+                      <div class="form-group">
+                        <label class="control-label" for="valorDevolver">Valor a Devolver</label>
+                        <div class="input-group">
+                          <span class="input-group-addon">R$</span>
+                          <input type="text" name="valorDevolver" id="valorDevolver" class="form-control number" readonly />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
