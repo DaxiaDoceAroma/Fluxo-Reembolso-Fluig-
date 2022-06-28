@@ -16,7 +16,7 @@ function validateForm(form) {
       if (isEmpty(form.getValue('agencia'))) message += 'Informe a Agência <br/>';
       if (isEmpty(form.getValue('conta'))) message += 'Informe a Conta <br/>';
     } else if (form.getValue('tipoChavePIX') == 'cpf_cnpj' && validarCPFouCNPJ(form.getValue('chavePIX')) === false)
-      message += 'Informe um CPF ou CNPJ válido';
+      message += 'Informe um CPF ou CNPJ válido <br/>';
     else if (isEmpty(form.getValue('chavePIX'))) message += 'Informe a Chave PIX <br/>';
 
     // if (isEmpty(form.getValue('veiculoProprio'))) message += '';
